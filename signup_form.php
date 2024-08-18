@@ -39,7 +39,7 @@ class login_signup_form extends moodleform implements renderable, templatable {
         $mform->addElement('text', 'username', get_string('username'), 'maxlength="100" size="12" autocapitalize="none"');
         $mform->setType('username', PARAM_RAW);
         $mform->addRule('username', get_string('missingusername'), 'required', null, 'client');
-        $mform->addElement('html', '<div class="text-danger already_username" style="display:none; text-align:center;">Username is already taken <span id="taken_phone"></span></div>');
+        $mform->addElement('html', '<div class="text-danger already_username" style="display:none; text-align:center;">'.get_string('usernametaken','auth_twiliootp').'<span id="taken_phone"></span></div>');
         if (!empty($CFG->passwordpolicy)){
             $mform->addElement('static', 'passwordpolicyinfo', '', print_password_policy());
         }
@@ -50,20 +50,13 @@ class login_signup_form extends moodleform implements renderable, templatable {
         ]);
         $mform->setType('password', core_user::get_property_type('password'));
         $mform->addRule('password', get_string('missingpassword'), 'required', null, 'client');
-        /*$mform->addRule('password', get_string('maximumchars', '', MAX_PASSWORD_CHARACTERS),
-            'maxlength', MAX_PASSWORD_CHARACTERS, 'client');*/
 
         $mform->addElement('text', 'email', get_string('email'), 'maxlength="100" size="25"');
         $mform->setType('email', core_user::get_property_type('email'));
         $mform->addRule('email', get_string('missingemail'), 'required', null, 'client');
         $mform->setForceLtr('email');
 
-        $mform->addElement('html', '<div class="text-danger already_email" style="display:none; text-align:center;">Useremail is already taken <span id="taken_phone"></span></div>');
-
-        /*$mform->addElement('text', 'email2', get_string('emailagain'), 'maxlength="100" size="25"');
-        $mform->setType('email2', core_user::get_property_type('email'));
-        $mform->addRule('email2', get_string('missingemail'), 'required', null, 'client');
-        $mform->setForceLtr('email2');*/
+        $mform->addElement('html', '<div class="text-danger already_email" style="display:none; text-align:center;">'.get_string('useremailtaken','auth_twiliootp').'<span id="taken_phone"></span></div>');
 
         $namefields = useredit_get_required_name_fields();
         foreach ($namefields as $field) {
@@ -93,42 +86,36 @@ class login_signup_form extends moodleform implements renderable, templatable {
         }else{
             $mform->setDefault('country', '');
         }
-         /*$sendOTPButton = $mform->createElement('submit', 'send_otp', 'Send OTP');
-        $mform->addElement($sendOTPButton);
-        $mform->registerNoSubmitButton('send_otp');*/
         $mform->addElement('text', 'phone2', get_string('mobilenumber','auth_twiliootp'),array('maxlength' => 15, 'size' => 25, 'value' => '', 'id' => 'id_phone2'));
         $mform->setType('phone2', core_user::get_property_type('phone2'));
         $mform->addRule('phone2', 'Missing mobile number', 'required', null, 'client');
         $mform->addRule('phone2', 'Please enter a valid phone number.', 'numeric', null, 'client');
-        $mform->addElement('html', '<div class="text-danger already_phone" style="display:none; text-align:center;">Phone is already taken <span id="taken_phone"></span></div>');
+        $mform->addElement('html', '<div class="text-danger already_phone" style="display:none; text-align:center;">'.get_string('userphonetaken','auth_twiliootp').'<span id="taken_phone"></span></div>');
         //otp sent message
-        $mform->addElement('html', '<div class="text-success otpsent_message" style="display:none; text-align:center;">OTP sent successfully to mobile number <span id="mobile-number"></span></div>');
-        $mform->addElement('html', '<div class="text-danger otpnotsent_message" style="display:none; text-align:center;">OTP Could not sent.please try again</div>');
-        $mform->addElement('html', '<div class="text-danger invalid_number" style="display:none; text-align:center;">Invalid mobile number.please check.</div>');
+        $mform->addElement('html', '<div class="text-success otpsent_message" style="display:none; text-align:center;">'.get_string('otpsentsucess','auth_twiliootp').' <span id="mobile-number"></span></div>');
+        $mform->addElement('html', '<div class="text-danger otpnotsent_message" style="display:none; text-align:center;">'.get_string('otpnotsent','auth_twiliootp').'</div>');
+        $mform->addElement('html', '<div class="text-danger invalid_number" style="display:none; text-align:center;">'.get_string('invalidnumber','auth_twiliootp').'</div>');
         //otp button container
         $mform->addElement('html', '<div class="send-otp-container">');
-        $mform->addElement('html', '<button id="otpButton" class="send-otp" style="display:none;">Send OTP</button>');//otp button
+        $mform->addElement('html', '<button id="otpButton" class="send-otp" style="display:none;">'.get_string('sendotpbtn','auth_twiliootp').'</button>');//otp button
         $mform->addElement('html', '<input type="text" id="otpbox" name="otpbox" value="" style="display:none;" title="Please enter 4 digit OTP received in WhatsApp SMS">'); //otp text box
-        $mform->addElement('html', '<button id="verifybutton" class="verify-otp btn-secondary" style="display:none;">Verify OTP</button>');// verify otp button
+        $mform->addElement('html', '<button id="verifybutton" class="verify-otp btn-secondary" style="display:none;">'.get_string('verifyotpbtn','auth_twiliootp').'</button>');// verify otp button
         $mform->addElement('html', '</div>');
         //verfied otp message
         $mform->addElement('html', '<div class="verfied-otp-container" style="display:none; text-align:center;">');
-        $mform->addElement('html', '<div class="text-success">Your phone number has been verified successfully!</div>');
+        $mform->addElement('html', '<div class="text-success">'.get_string('verifedsucess','auth_twiliootp').'</div>');
         $mform->addElement('html', '</div>');
         //not verfied otp message
+        $mform->addElement('html', '<div class="expired-otp-container" style="display:none; text-align:center;">');
+        $mform->addElement('html', '<div class="text-danger">'.get_string('expiredotp','auth_twiliootp').'</div>');
+        $mform->addElement('html', '</div>');
+
         $mform->addElement('html', '<div class="notverfied-otp-container" style="display:none; text-align:center;">');
-        $mform->addElement('html', '<div class="text-danger">Verification unsuccessful,Please Try again!</div>');
+        $mform->addElement('html', '<div class="text-danger">'.get_string('verifedunsucess','auth_twiliootp').'</div>');
         $mform->addElement('html', '</div>');
         //loader
         $mform->addElement('html', ' <div class="loader-wrapper" id="loader-container"><div id="loader"></div></div>');
         profile_signup_fields($mform);
-        //profile_signup_fields($mform);
-
-        /*if (signup_captcha_enabled_twiliootp()) {
-            $mform->addElement('recaptcha', 'recaptcha_element', get_string('security_question', 'auth'));
-            $mform->addHelpButton('recaptcha_element', 'recaptcha', 'auth');
-            $mform->closeHeaderBefore('recaptcha_element');
-        }*/
 
         // Hook for plugins to extend form definition.
         core_login_extend_signup_form($mform);

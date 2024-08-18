@@ -2,6 +2,7 @@
 require_once("$CFG->libdir/externallib.php");
 require_once("$CFG->dirroot/auth/twiliootp/twilio/vendor/autoload.php");
 require_once("$CFG->dirroot/auth/twiliootp/lib.php");
+require_once("$CFG->dirroot/auth/twiliootp/twiliootperrorcodes.php");
 use Twilio\Rest\Client;
 class moodle_auth_twiliootp_external extends external_api {
 	public static function twiliootp_js_method_parameters() {
@@ -18,8 +19,10 @@ class moodle_auth_twiliootp_external extends external_api {
 	public static function twiliootp_js_method_returns() {
         return new external_single_structure(
             array(
-                'status' => new external_value(PARAM_RAW, 'status: true if success'),
-                /*'error_code' => new external_value(PARAM_RAW, 'error_code: error reason flag')*/
+                'status' => new external_value(PARAM_INT, 'Status code: see TwilioOTPErrorCodes'),
+	            'errors' => new external_multiple_structure(
+	                new external_value(PARAM_INT, 'Error code')
+	            )
             )
         );
     }
@@ -35,27 +38,26 @@ class moodle_auth_twiliootp_external extends external_api {
 	    $twilio = new Client($sid, $token);
 	    $otp = mt_rand(1000, 9999);
 	    $otp_expiry = time() + $otp_validity_sec;
-	    //print_r($otp_expiry);
 	    $tonumber = $country_code.''.$phone;
 	    $fromnumber = $plugin->config->twilio_number;
-	    $status = 0;
 	    $error = false;
+	    $errors = array();
+
 	    $isusername = $DB->get_record('user',array('username' => $username));
 	    $isuseremail = $DB->get_record('user',array('email' => $useremail));
 	    $isuserphone = $DB->get_record('user',array('phone2' => $phone));
 	    if(isset($isusername) && !empty($isusername)){
-	    	$status = 4;
-	    	$error = true;
+	    	$errors[] = TwilioOTPErrorCodes::USERNAME_TAKEN;
 	    }
 	    if(isset($isuseremail) && !empty($isuseremail)){
-	    	$status = 5;
-	    	$error = true;
+	    	$errors[] = TwilioOTPErrorCodes::EMAIL_TAKEN;
 	    }
-	    if(isset($isuserphone) && !empty($isuserphone)){
+	    /*if(isset($isuserphone) && !empty($isuserphone)){
 	    	$status = 6;
-	    	$error = true;
-	    }
-	    //print_r($tonumber);die;
+	    	//$error = true;
+	    	$errors[] = TwilioOTPErrorCodes::PHONE_TAKEN;
+	    }*/
+	    $str = array("otp" => $otp, "sitename" => $sitename, "otp_validity" => $otp_validity);
 	    if(empty($error)){
 		    try {
 			    $lookup = $twilio->lookups->v1->phoneNumbers($phone)->fetch(array("countryCode" => $usercountry));
@@ -64,31 +66,24 @@ class moodle_auth_twiliootp_external extends external_api {
 				        ->create("whatsapp:".$lookup->phoneNumber, // to
 				            array(
 				                "from" => "whatsapp:".$fromnumber,
-				                "body" => $otp.' is your OTP for create new account in '.$sitename.'. Note that the OTP will be valid for next '.$otp_validity.' mins.'
+				                "body" => get_string('otpmessage', 'auth_twiliootp', $str)
 				            )
 				        );
-				    $status = 1;
-				    // If no exception is thrown, the message was sent successfully
-				    //echo "Message sent successfully.";
+				    //$status = 1;
 
 				} catch (\Twilio\Exceptions\TwilioException $e) {
-				    // Handle specific Twilio exceptions
-				    //echo 'Message could not be sent. Twilio Error: ' . $e->getMessage();
-				    $status = 2;
+				    $errors[] = TwilioOTPErrorCodes::TWILIO_ERROR;
 				} catch (Exception $e) {
-				    // Handle other exceptions
-				    //echo 'Message could not be sent.';
-				    $status = 2;
+				    $errors[] = TwilioOTPErrorCodes::TWILIO_ERROR;
 				}
 			} catch (Exception $e) {
-			    //echo 'Invalid phone number.';
-			    $status = 3;
+			    $errors[] = TwilioOTPErrorCodes::INVALID_PHONE;
 
 			}
 		}
-	    //print_r($message);
-	    //die;
-	    if($status == 1){
+	    
+	    $result = array();
+	    if (empty($errors)) {
 	    	$data = new stdClass();
 		    $data->username = $username;
 		    $data->email = $useremail;
@@ -100,10 +95,12 @@ class moodle_auth_twiliootp_external extends external_api {
 		    $data->otpcreated = time();
 		    $data->attempts_count = '';
 		    $DB->insert_record('auth_twiliootp_create', $data);
+	        $result['status'] = TwilioOTPErrorCodes::SUCCESS;
+	        $result['errors'] = $errors;
+	    } else {
+	        $result['status'] = TwilioOTPErrorCodes::GENERAL_ERROR; // You might define a general error code for unspecified issues
+	        $result['errors'] = $errors;
 	    }
-	    
-	    $result = array();
-	    $result['status'] = $status;
 	    return $result;
 	}
 	public static function success_twiliootp_url_parameters() {
@@ -120,7 +117,10 @@ class moodle_auth_twiliootp_external extends external_api {
 	public static function success_twiliootp_url_returns() {
 		return new external_single_structure(
             array(
-                'status' => new external_value(PARAM_RAW, 'status: true if success')
+                'status' => new external_value(PARAM_RAW, 'status: true if success'),
+                'errors' => new external_multiple_structure(
+	                new external_value(PARAM_INT, 'Error code')
+	            )
             )
         );
 	}
@@ -128,42 +128,43 @@ class moodle_auth_twiliootp_external extends external_api {
 		global $DB;
 		$plugin = get_auth_plugin('twiliootp');
 		$otp_record = $DB->get_record_sql('SELECT * FROM {auth_twiliootp_create} WHERE username = ? AND email = ? AND phone = ? ORDER BY id DESC LIMIT 1',[$username,$useremail,$phone]);
-		//print_r($otp_record);
+		$errors = array();
 		$verification_status = false;
 		if ($otp_record) {
 		    if ($otp_record->otp_code == $otp) {
 		        $current_time = time();
 		        $otp_expiry_time = $otp_record->otp_expiry;
-		        //echo '1';
 		        if ($current_time <= $otp_expiry_time) {
 		            $verification_status = true;
-		            //echo '2';
 		        } else {
 		            $verification_status = false;
-		            //echo '3';
+		            $errors[] = TwilioOTPErrorCodes::OTP_EXPIRED;
 		        }
 		    } else {
 		        $verification_status = false;
-		        //echo '4';
+		        $errors[] = TwilioOTPErrorCodes::INVALID_OTP;
 		    }
 		} else {
 		    $verification_status = false;
-		    //echo '5';
+		    $errors[] = TwilioOTPErrorCodes::OTP_RECORD_NOT_FOUND;
 		}
 		$previousattempt = $otp_record->attempts_count;
-		if($verification_status){
+		if (empty($errors)) {
 			$updateobj = new stdClass();
     		$updateobj->id = $otp_record->id;
     		$updateobj->verification_status = 1;//1=verified 0=not verfied
     		$updateobj->attempts_count = $previousattempt + 1;
     		$DB->update_record('auth_twiliootp_create', $updateobj, true);
+    		$result['status'] = TwilioOTPErrorCodes::SUCCESS;
+	        $result['errors'] = $errors;
 		} else {
 			$updateobj = new stdClass();
     		$updateobj->id = $otp_record->id;
     		$updateobj->attempts_count = $previousattempt + 1;
     		$DB->update_record('auth_twiliootp_create', $updateobj, true);
+    		$result['status'] = TwilioOTPErrorCodes::GENERAL_ERROR; // You might define a general error code for unspecified issues
+	        $result['errors'] = $errors;
 		}
-		$result['status'] = $verification_status;
 		return $result;
         die;
 	}

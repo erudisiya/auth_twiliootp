@@ -10,7 +10,6 @@ require_once('lib.php');
 if (!$authplugin = signup_is_enabled_twiliootp()) {
     throw new \moodle_exception('notlocalisederrormessage', 'error', '', 'Sorry, you may not use this page.');
 }
-//print_r($authplugin);
 $PAGE->set_url('/auth/twiliootp/signup.php');
 $PAGE->set_context(context_system::instance());
 
@@ -62,21 +61,17 @@ if ($mform_signup->is_cancelled()) {
 
 } else if ($user = $mform_signup->get_data()) {
     // Add missing required fields.
-    //print_r($user);die;
     $user = signup_setup_new_user($user);
-    //print_r($user);die;
     // Plugins can perform post sign up actions once data has been validated.
     core_login_post_signup_requests($user);
     $user->auth = 'twiliootp';
     $auth = get_auth_plugin($user->auth);
-    //print_r($auth);die;
     $auth->user_signup($user, true);// prints notice and link to login/index.php
     $auth->user_confirm($user->username, $user->secret);
     //$loggedinuser = authenticate_user_login($user->username, $user->password);
     //complete_user_login($loggedinuser);
     $redirect_url = new moodle_url('/my/');
     redirect($redirect_url, 'Account created successfully! Please login', 20);
-    /*redirect(new moodle_url('/my/','Account created successfully!Please login',20));*/
     exit; //never reached
 }
 
