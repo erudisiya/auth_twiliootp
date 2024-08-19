@@ -44,11 +44,11 @@ Clone this repository to your Moodle auth directory:<br>
 </ul>
 <h2>Configuration Settings</h2>
 <ul>
-	<li>Twilio Account SSID: Your Twilio Account SSID.</li>
-	<li>Twilio Auth Token: Your Twilio Auth Token.</li>
-	<li>Twilio Number: Your Twilio number is configured for WhatsApp.</li>
-	<li>OTP Expiry Time: The time (in minutes) until the OTP expires.</li>
-	<li>OTP Resend Time: The time (in seconds) until the OTP resend</li>
+	<li><b>Twilio Account SSID:</b> Your Twilio Account SSID.</li>
+	<li><b>Twilio Auth Token:</b> Your Twilio Auth Token.</li>
+	<li><b>Twilio Number:</b> Your Twilio number is configured for WhatsApp.</li>
+	<li><b>OTP Expiry Time:</b> The time (in minutes) until the OTP expires.</li>
+	<li><b>OTP Resend Time:</b> The time (in seconds) until the OTP resend</li>
 </ul>
 <h2>More Documentation</h2>
 More information with screenshots of this plugin can be found on the <a href="https://erudisiya.com/twiliootp-moodle-plugin-authentication/">Twilio OTP</a>.
