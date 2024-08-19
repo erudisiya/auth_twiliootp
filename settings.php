@@ -13,22 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Admin settings and defaults
+ * Twili OTP authentication plugin settings.
  *
- * @package auth_userkey
- * @copyright  2017 Stephen Bourget
+ * @package    auth_twiliootp
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    /*$settings->add(new admin_setting_configcheckbox('auth_twiliootp/enabletwilio',
-        get_string('enabletwilio', 'auth_twiliootp'),
-        get_string('enabletwilio_help', 'auth_twiliootp'), 0, PARAM_INT));
-*/
     $settings->add(new admin_setting_configtext('auth_twiliootp/twilio_ssid',
         get_string('twiliossid', 'auth_twiliootp'),
         get_string('twiliossid_help', 'auth_twiliootp'), '', PARAM_TEXT));
@@ -40,10 +36,6 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('auth_twiliootp/twilio_number',
         get_string('twilionumber', 'auth_twiliootp'),
         get_string('twilionumber_help', 'auth_twiliootp'), '', PARAM_TEXT));
-
-    /*$settings->add(new admin_setting_configtext('auth_twiliootp/revokethreshold',
-        get_string('revokethreshold', 'auth_twiliootp'),
-        get_string('revokethreshold_help', 'auth_twiliootp'), 3, PARAM_INT));*/
 
     $settings->add(new admin_setting_configtext(
         'auth_twiliootp/validityperiod',

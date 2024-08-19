@@ -13,12 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * User key auth method caps.
+ * Twili OTP authentication plugin access.
  *
  * @package    auth_twiliootp
- * @copyright  2016 Dmitrii Metelkin (dmitriim@catalyst-au.net)
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

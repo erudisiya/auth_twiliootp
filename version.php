@@ -13,12 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Version details.
+ * Twili OTP authentication plugin version specification.
  *
- * @package    auth_userkey
- * @copyright  2016 Dmitrii Metelkin (dmitriim@catalyst-au.net)
+ * @package    auth_twiliootp
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,4 +29,4 @@ $plugin->release   = 2024070100;        // Match release exactly to version.
 $plugin->requires  = 2020061500;        // Requires Moodle 3.3 version.
 $plugin->component = 'auth_twiliootp';    // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
-//$plugin->supported = [33, 401];         // A range of branch numbers of supported moodle versions.
+

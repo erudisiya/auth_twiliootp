@@ -13,15 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Auth e-mail external API
+ * Twili OTP authentication plugin external.
  *
  * @package    auth_twiliootp
- * @category   external
- * @copyright  2016 Juan Leyva <juan@moodle.com>
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 3.2
  */
 
 use core_external\external_api;

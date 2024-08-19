@@ -1,4 +1,27 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * Twili OTP authentication plugin lib.
+ *
+ * @package    auth_twiliootp
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 /**
  * Check if sign-up is enabled in the site. If is enabled, the function will return the authplugin instance.
@@ -8,39 +31,14 @@ defined('MOODLE_INTERNAL') || die();
  */
 function signup_is_enabled_twiliootp() {
     global $CFG;
-    //$isenable = get_config('auth_twiliootp', 'enabletwilio');
     if (!empty($CFG->registerauth)) {
-        //if($CFG->registerauth == 'twiliootp'){ //only if registerauth is twilio
             $authplugin = get_auth_plugin($CFG->registerauth);
             if ($authplugin->can_signup()) {
                 return $authplugin;
-            }
-        //}   
+            }  
     }
     return false;
 }
-/**
- * Plugins can create pre sign up requests.
- */
-/*function core_login_pre_signup_requests_twilio() {
-    $callbacks = get_plugins_with_function('pre_signup_requests');
-    foreach ($callbacks as $type => $plugins) {
-        foreach ($plugins as $plugin => $pluginfunction) {
-            $pluginfunction();
-        }
-    }
-}*/
- /** Inject form elements into signup_form.
-  * @param mform $mform the form to inject elements into.
-  */
-/*function core_login_extend_signup_forma($mform) {
-    $callbacks = get_plugins_with_function('extend_signup_form');
-    foreach ($callbacks as $type => $plugins) {
-        foreach ($plugins as $plugin => $pluginfunction) {
-            $pluginfunction($mform);
-        }
-    }
-}*/
 function signup_form() {
     global $CFG;
 

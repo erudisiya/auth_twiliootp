@@ -1,12 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * Twili OTP authentication plugin auth.
+ *
+ * @package    auth_twiliootp
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
 require_once($CFG->libdir . "/formslib.php");
 require_once($CFG->libdir . '/authlib.php');
-
-//use core\output\notification;
 
 /**
  * Phone OTP authentication plugin.
@@ -38,16 +59,6 @@ class auth_plugin_twiliootp extends auth_plugin_base {
      *
      * @var array
      */
-    /*protected $defaults = array(
-        'mappingfield' => self::DEFAULT_MAPPING_FIELD,
-        'keylifetime' => 60,
-        'iprestriction' => 0,
-        'ipwhitelist' => '',
-        'redirecturl' => '',
-        'ssourl' => '',
-        'createuser' => false,
-        'updateuser' => false,
-    );*/
 
     /**
      * Constructor.
@@ -55,7 +66,6 @@ class auth_plugin_twiliootp extends auth_plugin_base {
     public function __construct() {
         $this->authtype = 'twiliootp';
         $this->config = get_config('auth_twiliootp');
-        //$this->userkeymanager = new core_userkey_manager($this->config);
     }
     function can_signup() {
         return true;
@@ -86,24 +96,7 @@ class auth_plugin_twiliootp extends auth_plugin_base {
 
         return $content;
     }
-    /*function user_signup($user, $notify=true) {
-        global $CFG, $DB;
-        echo "string";die;
-        // Generate OTP and save it in the user profile
-        $otp = generate_random_otp(); // You need to implement this function
-        $user->otp = $otp;
-
-        // Send OTP via Twilio
-        $twilio = new \Twilio\Rest\Client($CFG->twilio_account_sid, $CFG->twilio_auth_token);
-        $message = "Your OTP for Moodle registration is: $otp";
-        $twilio->messages->create(
-            $user->phone, // User's phone number
-            ['from' => $CFG->twilio_phone_number, 'body' => $message]
-        );
-
-        return true; // Proceed with Moodle's default signup process
-    }*/
-    function user_signup($user, $notify=true) {//echo 'twilio';die;
+    function user_signup($user, $notify=true) {
         // Standard signup, without custom confirmatinurl.
         return $this->user_signup_with_confirmation($user, $notify);
     }
@@ -117,59 +110,13 @@ class auth_plugin_twiliootp extends auth_plugin_base {
         if (empty($user->calendartype)) {
             $user->calendartype = $CFG->calendartype;
         }
-        //print_r($user);die;
         $user->id = user_create_user($user, false, false);
 
         user_add_password_history($user->id, $plainpassword);
 
         // Save any custom profile field information.
         profile_save_data($user);
-
-        /*global $CFG, $PAGE, $OUTPUT;
-        $emailconfirm = get_string('emailconfirm');
-        $PAGE->navbar->add($emailconfirm);
-        $PAGE->set_title($emailconfirm);
-        $PAGE->set_heading($PAGE->course->fullname);
-        echo $OUTPUT->header();
-        notice(get_string('emailconfirmsent', '', $user->email), "$CFG->wwwroot/index.php");*/
-        /*// Save wantsurl against user's profile, so we can return them there upon confirmation.
-        if (!empty($SESSION->wantsurl)) {
-            set_user_preference('auth_email_wantsurl', $SESSION->wantsurl, $user);
-        }
-
-        // Trigger event.
-        \core\event\user_created::create_from_userid($user->id)->trigger();
-
-        if (! send_confirmation_email($user, $confirmationurl)) {
-            throw new \moodle_exception('auth_emailnoemail', 'auth_email');
-        }
-
-        if ($notify) {
-            global $CFG, $PAGE, $OUTPUT;
-            $emailconfirm = get_string('emailconfirm');
-            $PAGE->navbar->add($emailconfirm);
-            $PAGE->set_title($emailconfirm);
-            $PAGE->set_heading($PAGE->course->fullname);
-            echo $OUTPUT->header();
-            notice(get_string('emailconfirmsent', '', $user->email), "$CFG->wwwroot/index.php");
-        } else {
-            return true;
-        }*/
     }
-    /*function user_confirm($username, $otp) {
-        // Verify OTP against stored OTP
-        global $DB;
-echo "string1";die;
-        // Fetch user details based on username
-        $user = $DB->get_record('user', array('username' => $username), '*', MUST_EXIST);
-
-        // Compare provided OTP with stored OTP
-        if ($user && isset($user->otp) && $user->otp == $otp) {
-            return true; // OTP verification successful
-        } else {
-            return false; // OTP verification failed
-        }
-    }*/
     function user_confirm($username, $confirmsecret) { //echo 'heee';die;
         global $DB, $SESSION;
         $user = get_complete_user_data('username', $username);
@@ -199,35 +146,6 @@ echo "string1";die;
             // passwords are always specified by users
             set_user_preference('auth_forcepasswordchange', true, $user->id);
         }
-        //redirect(new moodle_url('/my/'));
         return true;
     }
-    /*public function user_login($username, $password) {
-        global $CFG, $DB, $USER;
-
-        // Validate the user credentials
-        if (!$user = $DB->get_record('user', array('username'=>$username, 'mnethostid'=>$CFG->mnet_localhost_id))) {
-            return false; // User not found
-        }
-
-        if (!validate_internal_user_password($user, $password)) {
-            return false; // Invalid password
-        }
-
-        // Check if the password is 'changeme' and force password change if needed
-        if ($password === 'changeme') {
-            set_user_preference('auth_forcepasswordchange', true, $user->id);
-        }
-
-        // Perform additional checks or actions as needed
-        // Example: Check user status, roles, etc.
-
-        // If user credentials are valid, set $USER and redirect to /my/
-        $USER = $user; // Set the global $USER object
-        echo 'here';die;
-        // Redirect to /my/ after successful login
-        redirect(new moodle_url('/my'));
-        //exit; // Ensure no further code executes after redirect
-    }*/
-
 }

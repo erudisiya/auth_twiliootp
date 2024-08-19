@@ -13,13 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * User sign-up form.
+ * Twili OTP authentication plugin signup form.
  *
- * @package    core
- * @subpackage auth
- * @copyright  1999 onwards Martin Dougiamas  http://dougiamas.com
+ * @package    auth_twiliootp
+ * @author     Erudisiya <contact.erudisiya@gmail.com>
+ * @copyright  2024 Erudisiya Team(https://erudisiya.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
