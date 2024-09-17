@@ -1,4 +1,5 @@
 <h1>Moodle OTP Authentication Plugin</h1>
+<img src="https://erudisiya.com/wp-content/uploads/2024/08/Twilio_logo.png" width="200">
 <h2>Overview</h2>
 This Moodle plugin provides an OTP (One-Time Password) authentication method via WhatsApp, utilizing Twilio API. It enables new users to create accounts on your LMS site through a secure OTP verification process sent via WhatsApp.
 <h2>Features</h2>
